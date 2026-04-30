@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Minou Tricot"/>
+<meta name="theme-color" content="#f7f4ef"/>
+<title>Minou Tricot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream: #f7f4ef;
+  --cream2: #ede9e1;
+  --cream3: #e0dbd0;
+  --ink: #1a1714;
+  --ink2: #5a554e;
+  --ink3: #9a9088;
+  --warm: #c4855a;
+  --warm-light: #f5e9df;
+  --warm-dark: #9a6040;
+  --safe-top: env(safe-area-inset-top, 44px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+  --r: 20px;
+  --r-sm: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cream: #16130f;
+    --cream2: #1f1c17;
+    --cream3: #2a2620;
+    --ink: #f0ebe3;
+    --ink2: #a09890;
+    --ink3: #5a5248;
+    --warm-light: #2a1e14;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--cream);}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);display:flex;flex-direction:column;height:100%;}
+
+/* ─ CAT SVG DECORATIONS ─ */
+.cat-ears::before {
+  content: '';
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 16px solid var(--cream2);
+  top: -14px; left: 18px;
+  filter: drop-shadow(0 -1px 0 var(--cream3));
+}
+.cat-ears::after {
+  content: '';
+  position: absolute;
+  width: 0; height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 16px solid var(--cream2);
+  top: -14px; right: 18px;
+  filter: drop-shadow(0 -1px 0 var(--cream3));
+}
+
+/* ─ SCREENS ─ */
+.screen{display:none;flex-direction:column;height:100%;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* ══ LIST SCREEN ══ */
+.list-topbar{
+  padding: calc(var(--safe-top) + 8px) 24px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--cream);
+  position:relative;
+}
+.app-logo{display:flex;align-items:center;gap:10px;}
+.logo-cat{width:36px;height:36px;position:relative;}
+.logo-cat svg{width:100%;height:100%;}
+.app-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:-0.3px;}
+.app-name span{color:var(--warm);font-style:italic;}
+
+.btn-add{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--ink);color:var(--cream);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s,background .15s;
+}
+.btn-add:active{transform:scale(.88);}
+.btn-add svg{width:18px;height:18px;}
+
+.list-scroll{
+  flex:1;overflow-y:auto;padding:8px 20px calc(var(--safe-bottom) + 20px);
+  -webkit-overflow-scrolling:touch;
+  display:flex;flex-direction:column;gap:14px;
+}
+
+.proj-card{
+  background:var(--cream2);
+  border-radius:var(--r);
+  overflow:hidden;
+  cursor:pointer;
+  border:1px solid var(--cream3);
+  transition:transform .12s;
+  position:relative;
+}
+.proj-card:active{transform:scale(.975);}
+.proj-card-body{padding:18px 20px 14px;display:flex;align-items:center;gap:14px;}
+.proj-avatar{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;flex-shrink:0;
+}
+.proj-text{flex:1;min-width:0;}
+.proj-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.proj-sub{font-size:12px;color:var(--ink3);margin-top:3px;font-weight:300;}
+.proj-counters-preview{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.counter-pill{
+  display:flex;align-items:center;gap:5px;
+  background:var(--cream);border:1px solid var(--cream3);
+  border-radius:20px;padding:4px 10px;
+  font-size:12px;font-weight:500;
+}
+.counter-pill-dot{width:7px;height:7px;border-radius:50%;}
+.counter-pill-num{font-family:'Playfair Display',serif;font-weight:700;}
+.proj-chevron{color:var(--ink3);flex-shrink:0;}
+.proj-prog-bar{height:3px;background:var(--cream3);}
+.proj-prog-fill{height:100%;border-radius:0 0 0 0;transition:width .5s ease;}
+
+/* cat paw watermark on card */
+.paw-mark{
+  position:absolute;bottom:12px;right:16px;
+  opacity:.06;font-size:28px;
+  pointer-events:none;user-select:none;
+  transform:rotate(-20deg);
+}
+
+.empty-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px 32px;text-align:center;}
+.empty-cat-svg{opacity:.45;}
+.empty-headline{font-family:'Playfair Display',serif;font-size:22px;font-style:italic;color:var(--ink2);}
+.empty-body{font-size:14px;color:var(--ink3);line-height:1.7;font-weight:300;}
+
+/* ══ PROJECT SCREEN ══ */
+.proj-topbar{
+  padding:calc(var(--safe-top) + 8px) 20px 14px;
+  display:flex;align-items:center;gap:12px;
+  background:var(--cream);
+  border-bottom:1px solid var(--cream3);
+}
+.btn-back{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--cream2);border:1px solid var(--cream3);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--ink2);flex-shrink:0;
+  transition:transform .1s;
+}
+.btn-back:active{transform:scale(.88);}
+.proj-topbar-info{flex:1;min-width:0;}
+.proj-topbar-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.proj-topbar-meta{font-size:12px;color:var(--ink3);margin-top:1px;font-weight:300;}
+.btn-opts{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--cream2);border:1px solid var(--cream3);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--ink2);flex-shrink:0;
+}
+.btn-opts:active{background:var(--cream3);}
+
+.proj-scroll{flex:1;overflow-y:auto;padding:16px 20px calc(var(--safe-bottom) + 80px);-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:14px;}
+
+/* counter cards inside project */
+.ctr-card{
+  background:var(--cream2);
+  border:1px solid var(--cream3);
+  border-radius:var(--r);
+  overflow:hidden;
+  position:relative;
+}
+.ctr-card-top{padding:16px 18px 12px;display:flex;align-items:center;gap:12px;}
+.ctr-color-bar{width:4px;height:44px;border-radius:2px;flex-shrink:0;}
+.ctr-info{flex:1;min-width:0;}
+.ctr-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ctr-sub{font-size:12px;color:var(--ink3);margin-top:2px;font-weight:300;}
+.ctr-number{font-family:'Playfair Display',serif;font-size:40px;font-weight:700;line-height:1;flex-shrink:0;min-width:56px;text-align:right;}
+.ctr-number.pop{animation:numPop .2s cubic-bezier(.3,1.4,.5,1);}
+@keyframes numPop{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+
+.ctr-tap-row{display:flex;align-items:center;gap:10px;padding:0 18px 14px;}
+.btn-tap{
+  flex:1;
+  height:58px;
+  border-radius:14px;
+  border:none;
+  background:var(--ink);
+  color:var(--cream);
+  font-family:'DM Sans',sans-serif;
+  font-size:15px;
+  font-weight:500;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .1s,background .1s;
+  user-select:none;-webkit-user-select:none;
+}
+.btn-tap:active{transform:scale(.94);background:var(--ink2);}
+.btn-tap-icon{font-size:22px;line-height:1;}
+.btn-small{
+  width:58px;height:58px;
+  border-radius:14px;
+  border:1px solid var(--cream3);
+  background:var(--cream);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink2);
+  transition:transform .1s;
+  flex-shrink:0;
+}
+.btn-small:active{transform:scale(.88);background:var(--cream3);}
+.btn-small svg{width:18px;height:18px;}
+
+.ctr-prog-wrap{padding:0 18px 16px;}
+.ctr-prog-track{height:5px;background:var(--cream3);border-radius:3px;overflow:hidden;}
+.ctr-prog-fill{height:100%;border-radius:3px;transition:width .4s ease;}
+.ctr-prog-labels{display:flex;justify-content:space-between;margin-top:5px;}
+.ctr-prog-labels span{font-size:11px;color:var(--ink3);font-weight:300;}
+
+.ctr-notes{padding:0 18px 14px;}
+.notes-ta{
+  width:100%;border:1px solid var(--cream3);border-radius:10px;
+  background:var(--cream);color:var(--ink);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  padding:8px 12px;resize:none;outline:none;
+  font-weight:300;line-height:1.5;
+}
+.notes-ta::placeholder{color:var(--ink3);}
+.notes-ta:focus{border-color:var(--ink3);}
+
+/* fab add counter */
+.fab{
+  position:fixed;bottom:calc(var(--safe-bottom) + 20px);right:24px;
+  width:56px;height:56px;border-radius:28px;
+  background:var(--ink);color:var(--cream);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.25);
+  transition:transform .15s;
+  z-index:10;
+}
+.fab:active{transform:scale(.88);}
+.fab.hidden{display:none;}
+.fab svg{width:22px;height:22px;}
+
+/* ══ MODALS & SHEETS ══ */
+.backdrop{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);z-index:100;
+  align-items:flex-end;
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+}
+.backdrop.open{display:flex;}
+
+.sheet{
+  width:100%;background:var(--cream);
+  border-radius:28px 28px 0 0;
+  padding:0 0 calc(var(--safe-bottom) + 8px);
+  max-height:92vh;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--cream3);margin:14px auto 4px;}
+.sheet-title{
+  font-family:'Playfair Display',serif;
+  font-size:20px;font-weight:700;
+  padding:16px 24px 0;margin-bottom:20px;
+}
+.form-group{padding:0 24px;margin-bottom:18px;}
+.form-label{font-size:11px;font-weight:500;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:block;}
+.form-input{
+  width:100%;padding:14px 16px;
+  border-radius:var(--r-sm);
+  border:1px solid var(--cream3);
+  background:var(--cream2);
+  font-family:'DM Sans',sans-serif;font-size:16px;
+  color:var(--ink);outline:none;-webkit-appearance:none;
+}
+.form-input:focus{border-color:var(--ink3);background:var(--cream);}
+
+.color-row{display:flex;gap:10px;flex-wrap:wrap;}
+.color-chip{
+  width:36px;height:36px;border-radius:50%;
+  border:3px solid transparent;cursor:pointer;
+  transition:transform .12s,border-color .12s;
+}
+.color-chip.sel{border-color:var(--ink);transform:scale(1.18);}
+.color-chip:active{transform:scale(.88)!important;}
+
+.emoji-row{display:flex;gap:8px;flex-wrap:wrap;}
+.emoji-chip{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--cream2);border:2px solid transparent;
+  font-size:22px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .1s,transform .1s;
+}
+.emoji-chip.sel{border-color:var(--warm);background:var(--warm-light);}
+.emoji-chip:active{transform:scale(.88);}
+
+.sheet-action{
+  margin:4px 24px;width:calc(100% - 48px);
+  padding:16px;border-radius:var(--r-sm);
+  border:none;font-family:'DM Sans',sans-serif;
+  font-size:16px;font-weight:500;cursor:pointer;
+  transition:opacity .1s;
+}
+.sheet-action:active{opacity:.75;}
+.sheet-action.primary{background:var(--ink);color:var(--cream);}
+.sheet-action.secondary{background:var(--cream2);border:1px solid var(--cream3);color:var(--ink2);}
+.sheet-action.danger{background:transparent;color:#c0392b;}
+
+/* menu sheet */
+.menu-item{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 24px;cursor:pointer;
+  font-size:16px;border-bottom:1px solid var(--cream2);
+  transition:background .1s;
+}
+.menu-item:active{background:var(--cream2);}
+.menu-item:last-child{border-bottom:none;}
+.menu-item.red{color:#c0392b;}
+.menu-icon{width:36px;height:36px;border-radius:10px;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+
+/* ── cat illustration ── */
+.cat-deco{
+  position:fixed;bottom:calc(var(--safe-bottom) + 90px);right:20px;
+  opacity:.08;pointer-events:none;user-select:none;
+  transition:opacity .3s;
+  z-index:1;
+}
+
+/* install banner */
+.install-tip{
+  display:none;
+  margin:0 20px 4px;
+  background:var(--warm-light);
+  border:1px solid rgba(196,133,90,.3);
+  border-radius:var(--r-sm);
+  padding:12px 16px;
+  font-size:13px;color:var(--ink2);line-height:1.6;font-weight:300;
+}
+.install-tip b{color:var(--warm);font-weight:500;}
+.install-tip-close{float:right;cursor:pointer;color:var(--ink3);font-size:16px;line-height:1;margin-left:8px;}
+</style>
+</head>
+<body>
+
+<!-- ══ LIST SCREEN ══ -->
+<div class="screen active" id="screen-list">
+  <div class="list-topbar">
+    <div class="app-logo">
+      <div class="logo-cat">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 8 L6 20 Q6 28 18 28 Q30 28 30 20 L30 8 L25 14 Q22 10 18 10 Q14 10 11 14 Z" fill="currentColor" opacity=".9"/>
+          <circle cx="13.5" cy="20" r="2" fill="var(--cream)"/>
+          <circle cx="22.5" cy="20" r="2" fill="var(--cream)"/>
+          <path d="M15 24 Q18 26 21 24" stroke="var(--cream)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <line x1="8" y1="21" x2="3" y2="19" stroke="var(--cream)" stroke-width="1" stroke-linecap="round"/>
+          <line x1="8" y1="22.5" x2="3" y2="22.5" stroke="var(--cream)" stroke-width="1" stroke-linecap="round"/>
+          <line x1="28" y1="21" x2="33" y2="19" stroke="var(--cream)" stroke-width="1" stroke-linecap="round"/>
+          <line x1="28" y1="22.5" x2="33" y2="22.5" stroke="var(--cream)" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="app-name">Minou <span>Tricot</span></div>
+    </div>
+    <button class="btn-add" onclick="openNewProjectSheet()">
+      <svg viewBox="0 0 18 18" fill="none"><path d="M9 2v14M2 9h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="install-tip" id="install-tip">
+    <span class="install-tip-close" onclick="this.parentElement.style.display='none'">×</span>
+    <b>Installer l'app :</b> Dans Safari, appuie sur <b>Partager</b> → <b>« Sur l'écran d'accueil »</b>
+  </div>
+  <div class="list-scroll" id="list-scroll"></div>
+</div>
+
+<!-- ══ PROJECT SCREEN ══ -->
+<div class="screen" id="screen-project">
+  <div class="proj-topbar">
+    <button class="btn-back" onclick="goList()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="proj-topbar-info">
+      <div class="proj-topbar-name" id="p-name"></div>
+      <div class="proj-topbar-meta" id="p-meta"></div>
+    </div>
+    <button class="btn-opts" onclick="openProjectMenu()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="5" r="1.5" fill="currentColor"/><circle cx="9" cy="9" r="1.5" fill="currentColor"/><circle cx="9" cy="13" r="1.5" fill="currentColor"/></svg>
+    </button>
+  </div>
+  <div class="proj-scroll" id="proj-scroll"></div>
+  <button class="fab" id="fab-add-counter" onclick="openNewCounterSheet()">
+    <svg viewBox="0 0 22 22" fill="none"><path d="M11 2v18M2 11h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<!-- ══ NEW PROJECT SHEET ══ -->
+<div class="backdrop" id="sheet-new-project" onclick="if(event.target===this)closeSheet('sheet-new-project')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Nouveau projet</div>
+    <div class="form-group">
+      <label class="form-label">Nom du projet</label>
+      <input class="form-input" id="np-name" type="text" placeholder="Ex : Écharpe d'hiver…"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Icône</label>
+      <div class="emoji-row" id="np-emoji-row"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Couleur du thème</label>
+      <div class="color-row" id="np-color-row"></div>
+    </div>
+    <button class="sheet-action primary" onclick="createProject()">Créer le projet</button>
+    <button class="sheet-action secondary" onclick="closeSheet('sheet-new-project')" style="margin-top:8px;">Annuler</button>
+  </div>
+</div>
+
+<!-- ══ NEW COUNTER SHEET ══ -->
+<div class="backdrop" id="sheet-new-counter" onclick="if(event.target===this)closeSheet('sheet-new-counter')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Nouveau compteur</div>
+    <div class="form-group">
+      <label class="form-label">Nom du compteur</label>
+      <input class="form-input" id="nc-name" type="text" placeholder="Ex : Rang endroit, Répétition A…"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Couleur</label>
+      <div class="color-row" id="nc-color-row"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Objectif (rangs) — optionnel</label>
+      <input class="form-input" id="nc-target" type="number" min="0" placeholder="Ex : 60"/>
+    </div>
+    <button class="sheet-action primary" onclick="createCounter()">Ajouter le compteur</button>
+    <button class="sheet-action secondary" onclick="closeSheet('sheet-new-counter')" style="margin-top:8px;">Annuler</button>
+  </div>
+</div>
+
+<!-- ══ PROJECT MENU SHEET ══ -->
+<div class="backdrop" id="sheet-project-menu" onclick="if(event.target===this)closeSheet('sheet-project-menu')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="menu-item" onclick="renameProject();closeSheet('sheet-project-menu')">
+      <div class="menu-icon">✏️</div> Renommer le projet
+    </div>
+    <div class="menu-item" onclick="resetAllCounters();closeSheet('sheet-project-menu')">
+      <div class="menu-icon">🔄</div> Remettre tous les compteurs à zéro
+    </div>
+    <div class="menu-item red" onclick="deleteProject();closeSheet('sheet-project-menu')">
+      <div class="menu-icon">🗑️</div> Supprimer le projet
+    </div>
+    <div class="menu-item" onclick="closeSheet('sheet-project-menu')" style="color:var(--ink3);">
+      <div class="menu-icon">✕</div> Annuler
+    </div>
+  </div>
+</div>
+
+<!-- ══ COUNTER MENU SHEET ══ -->
+<div class="backdrop" id="sheet-counter-menu" onclick="if(event.target===this)closeSheet('sheet-counter-menu')">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="menu-item" onclick="editCounterTarget();closeSheet('sheet-counter-menu')">
+      <div class="menu-icon">🎯</div> Modifier l'objectif
+    </div>
+    <div class="menu-item" onclick="renameCounter();closeSheet('sheet-counter-menu')">
+      <div class="menu-icon">✏️</div> Renommer ce compteur
+    </div>
+    <div class="menu-item" onclick="resetOneCounter();closeSheet('sheet-counter-menu')">
+      <div class="menu-icon">🔄</div> Remettre à zéro
+    </div>
+    <div class="menu-item red" onclick="deleteCounter();closeSheet('sheet-counter-menu')">
+      <div class="menu-icon">🗑️</div> Supprimer ce compteur
+    </div>
+    <div class="menu-item" onclick="closeSheet('sheet-counter-menu')" style="color:var(--ink3);">
+      <div class="menu-icon">✕</div> Annuler
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── CONSTANTS ── */
+const COLORS = ['#c4855a','#5b87c5','#7aad7a','#b85c7a','#8b70c0','#4aadaa','#c5a83a','#c05c5c','#7a9abf','#888'];
+const EMOJIS = ['🧶','🐱','🧣','🧤','🧥','🪡','🌸','🌿','⭐','🌙','🍂','💙'];
+const CAT_EMOJIS = ['😺','😸','🐱','🐾','🐈','🙀'];
+
+/* ── STATE ── */
+let projects = [];
+let activeProjectId = null;
+let activeCounterId = null;
+let newProjColor = COLORS[0], newProjEmoji = EMOJIS[0];
+let newCtrColor = COLORS[1];
+
+function load() {
+  try { projects = JSON.parse(localStorage.getItem('minou_tricot_v1') || '[]'); } catch(e){ projects=[]; }
+}
+function save() {
+  try { localStorage.setItem('minou_tricot_v1', JSON.stringify(projects)); } catch(e){}
+}
+function getProj(id) { return projects.find(p=>p.id===(id??activeProjectId)); }
+function getCtr(projId, ctrId) { const p=getProj(projId); return p?.counters.find(c=>c.id===(ctrId??activeCounterId)); }
+
+/* ── LIST RENDER ── */
+function renderList() {
+  const el = document.getElementById('list-scroll');
+  if (!projects.length) {
+    el.innerHTML = `<div class="empty-wrap">
+      <svg class="empty-cat-svg" width="120" height="100" viewBox="0 0 120 100" fill="none">
+        <path d="M20 20 L20 65 Q20 85 60 85 Q100 85 100 65 L100 20 L84 42 Q72 28 60 28 Q48 28 36 42 Z" fill="currentColor" opacity=".2"/>
+        <circle cx="44" cy="62" r="5" fill="currentColor" opacity=".5"/>
+        <circle cx="76" cy="62" r="5" fill="currentColor" opacity=".5"/>
+        <path d="M50 74 Q60 80 70 74" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none" opacity=".5"/>
+        <line x1="26" y1="63" x2="8" y2="58" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".3"/>
+        <line x1="26" y1="67" x2="8" y2="67" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".3"/>
+        <line x1="94" y1="63" x2="112" y2="58" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".3"/>
+        <line x1="94" y1="67" x2="112" y2="67" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".3"/>
+      </svg>
+      <div class="empty-headline">Pas encore de projet…</div>
+      <div class="empty-body">Appuie sur <strong>+</strong> pour créer ton premier projet de tricot. Ton chat approuve.</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = projects.map(p => {
+    const totalRows = p.counters.reduce((s,c)=>s+c.count,0);
+    const hasProg = p.counters.some(c=>c.target>0);
+    const bestPct = hasProg ? Math.min(100, Math.round(
+      p.counters.filter(c=>c.target>0).reduce((s,c)=>s+(c.count/c.target),0) /
+      p.counters.filter(c=>c.target>0).length * 100
+    )) : 0;
+    const pillsHTML = p.counters.slice(0,4).map(c=>`
+      <div class="counter-pill">
+        <div class="counter-pill-dot" style="background:${c.color}"></div>
+        <span style="color:var(--ink2);font-weight:300">${esc(c.name.length>10?c.name.slice(0,10)+'…':c.name)}</span>
+        <span class="counter-pill-num" style="color:${c.color}">${c.count}</span>
+      </div>`).join('');
+    return `<div class="proj-card" onclick="openProject(${p.id})">
+      <div class="paw-mark">🐾</div>
+      <div class="proj-card-body">
+        <div class="proj-avatar" style="background:${p.color}18">${p.emoji}</div>
+        <div class="proj-text">
+          <div class="proj-title">${esc(p.name)}</div>
+          <div class="proj-sub">${p.counters.length} compteur${p.counters.length!==1?'s':''} · ${totalRows} rang${totalRows!==1?'s':''} total</div>
+          ${p.counters.length ? `<div class="proj-counters-preview">${pillsHTML}</div>` : ''}
+        </div>
+        <svg class="proj-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      ${hasProg ? `<div class="proj-prog-bar"><div class="proj-prog-fill" style="width:${bestPct}%;background:${p.color}"></div></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+/* ── PROJECT SCREEN ── */
+function openProject(id) {
+  activeProjectId = id;
+  renderProject();
+  show('screen-project');
+}
+
+function renderProject() {
+  const p = getProj();
+  if (!p) return;
+  document.getElementById('p-name').textContent = p.emoji + ' ' + p.name;
+  const total = p.counters.reduce((s,c)=>s+c.count,0);
+  document.getElementById('p-meta').textContent = `${p.counters.length} compteur${p.counters.length!==1?'s':''} · ${total} rang${total!==1?'s':''} au total`;
+
+  const el = document.getElementById('proj-scroll');
+  if (!p.counters.length) {
+    el.innerHTML = `<div class="empty-wrap" style="padding-top:60px">
+      <div style="font-size:48px;opacity:.3">🐱</div>
+      <div class="empty-headline" style="font-size:18px">Aucun compteur</div>
+      <div class="empty-body">Appuie sur <strong>+</strong> pour ajouter un compteur de rangs à ce projet.</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = p.counters.map(c => {
+    const hasProg = c.target > 0;
+    const pct = hasProg ? Math.min(100, Math.round(c.count/c.target*100)) : 0;
+    const left = hasProg ? Math.max(0, c.target - c.count) : 0;
+    return `<div class="ctr-card" id="ctr-${c.id}">
+      <div class="ctr-card-top">
+        <div class="ctr-color-bar" style="background:${c.color}"></div>
+        <div class="ctr-info">
+          <div class="ctr-name">${esc(c.name)}</div>
+          <div class="ctr-sub">${hasProg ? `objectif : ${c.target} rangs · ${pct}%` : 'aucun objectif fixé'}</div>
+        </div>
+        <div class="ctr-number" id="num-${c.id}" style="color:${c.color}">${c.count}</div>
+        <button class="btn-small" style="margin-left:4px" onclick="openCounterMenu(${c.id})">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="5" r="1.4" fill="currentColor"/><circle cx="9" cy="9" r="1.4" fill="currentColor"/><circle cx="9" cy="13" r="1.4" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <div class="ctr-tap-row">
+        <button class="btn-small" onclick="decrement(${c.id})" title="Annuler">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="btn-tap" style="background:${c.color}" onclick="increment(${c.id})">
+          <span class="btn-tap-icon">+</span>
+          <span>rang suivant</span>
+        </button>
+      </div>
+      ${hasProg ? `<div class="ctr-prog-wrap">
+        <div class="ctr-prog-track">
+          <div class="ctr-prog-fill" id="prog-${c.id}" style="width:${pct}%;background:${c.color}"></div>
+        </div>
+        <div class="ctr-prog-labels">
+          <span>${pct}%</span>
+          <span>${left > 0 ? `encore ${left} rang${left!==1?'s':''}` : '✓ Terminé !'}</span>
+        </div>
+      </div>` : ''}
+      <div class="ctr-notes">
+        <textarea class="notes-ta" rows="2" placeholder="Notes (laine, aiguilles, point…)" oninput="saveNotes(${c.id},this.value)">${esc(c.notes||'')}</textarea>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── COUNTER ACTIONS ── */
+function increment(cid) {
+  const p = getProj();
+  const c = getCtr(activeProjectId, cid);
+  if (!c) return;
+  c.count++;
+  save();
+  updateCounterUI(cid);
+  updateProjectMeta();
+  if (c.target > 0 && c.count === c.target) {
+    setTimeout(()=>{
+      if(confirm(`🎉 Objectif atteint pour "${c.name}" !\nRemettre à zéro ?`)){c.count=0;save();renderProject();}
+    },300);
+  }
+}
+
+function decrement(cid) {
+  const c = getCtr(activeProjectId, cid);
+  if (!c || c.count===0) return;
+  c.count--;
+  save();
+  updateCounterUI(cid);
+  updateProjectMeta();
+}
+
+function updateCounterUI(cid) {
+  const c = getCtr(activeProjectId, cid);
+  if (!c) return;
+  const numEl = document.getElementById('num-'+cid);
+  if (numEl) {
+    numEl.textContent = c.count;
+    numEl.classList.remove('pop');
+    void numEl.offsetWidth;
+    numEl.classList.add('pop');
+  }
+  if (c.target > 0) {
+    const pct = Math.min(100, Math.round(c.count/c.target*100));
+    const left = Math.max(0, c.target-c.count);
+    const progEl = document.getElementById('prog-'+cid);
+    if(progEl) progEl.style.width = pct+'%';
+    const card = document.getElementById('ctr-'+cid);
+    if(card){
+      const labels = card.querySelectorAll('.ctr-prog-labels span');
+      if(labels[0]) labels[0].textContent = pct+'%';
+      if(labels[1]) labels[1].textContent = left>0 ? `encore ${left} rang${left!==1?'s':''}` : '✓ Terminé !';
+    }
+  }
+}
+
+function updateProjectMeta() {
+  const p = getProj();
+  if (!p) return;
+  const total = p.counters.reduce((s,c)=>s+c.count,0);
+  document.getElementById('p-meta').textContent = `${p.counters.length} compteur${p.counters.length!==1?'s':''} · ${total} rang${total!==1?'s':''} au total`;
+}
+
+function saveNotes(cid, val) {
+  const c = getCtr(activeProjectId, cid);
+  if (c) { c.notes = val; save(); }
+}
+
+/* ── MENUS ── */
+function openCounterMenu(cid) {
+  activeCounterId = cid;
+  openSheet('sheet-counter-menu');
+}
+function openProjectMenu() { openSheet('sheet-project-menu'); }
+
+function editCounterTarget() {
+  const c = getCtr(activeProjectId, activeCounterId);
+  if (!c) return;
+  const v = prompt('Objectif en rangs (vide = aucun) :', c.target > 0 ? c.target : '');
+  if (v === null) return;
+  c.target = parseInt(v) > 0 ? parseInt(v) : 0;
+  save(); renderProject();
+}
+function renameCounter() {
+  const c = getCtr(activeProjectId, activeCounterId);
+  if (!c) return;
+  const v = prompt('Nouveau nom :', c.name);
+  if (!v?.trim()) return;
+  c.name = v.trim(); save(); renderProject();
+}
+function resetOneCounter() {
+  const c = getCtr(activeProjectId, activeCounterId);
+  if (!c || !confirm(`Remettre "${c.name}" à zéro ?`)) return;
+  c.count = 0; save(); renderProject();
+}
+function deleteCounter() {
+  const p = getProj();
+  const c = getCtr(activeProjectId, activeCounterId);
+  if (!p || !c || !confirm(`Supprimer "${c.name}" ?`)) return;
+  p.counters = p.counters.filter(x=>x.id!==activeCounterId);
+  save(); renderProject();
+}
+function renameProject() {
+  const p = getProj();
+  if (!p) return;
+  const v = prompt('Nouveau nom :', p.name);
+  if (!v?.trim()) return;
+  p.name = v.trim(); save();
+  document.getElementById('p-name').textContent = p.emoji + ' ' + p.name;
+}
+function resetAllCounters() {
+  const p = getProj();
+  if (!p || !confirm('Remettre TOUS les compteurs à zéro ?')) return;
+  p.counters.forEach(c=>c.count=0); save(); renderProject();
+}
+function deleteProject() {
+  const p = getProj();
+  if (!p || !confirm(`Supprimer le projet "${p.name}" et tous ses compteurs ?`)) return;
+  projects = projects.filter(x=>x.id!==activeProjectId);
+  save(); goList();
+}
+
+/* ── CREATE ── */
+function openNewProjectSheet() {
+  newProjColor = COLORS[projects.length % COLORS.length];
+  newProjEmoji = EMOJIS[projects.length % EMOJIS.length];
+  document.getElementById('np-name').value = '';
+  renderColorPicker('np-color-row', COLORS, ()=>newProjColor, v=>{newProjColor=v;renderColorPicker('np-color-row',COLORS,()=>newProjColor,arguments.callee);});
+  renderEmojiPicker('np-emoji-row', EMOJIS, ()=>newProjEmoji, v=>{newProjEmoji=v;renderEmojiPicker('np-emoji-row',EMOJIS,()=>newProjEmoji,arguments.callee);});
+  openSheet('sheet-new-project');
+  setTimeout(()=>document.getElementById('np-name').focus(),120);
+}
+
+function createProject() {
+  const name = document.getElementById('np-name').value.trim() || 'Nouveau projet';
+  const p = { id: Date.now(), name, emoji: newProjEmoji, color: newProjColor, counters: [] };
+  projects.push(p); save();
+  closeSheet('sheet-new-project');
+  openProject(p.id);
+}
+
+function openNewCounterSheet() {
+  const p = getProj();
+  newCtrColor = COLORS[(p?.counters.length||0) % COLORS.length];
+  document.getElementById('nc-name').value = '';
+  document.getElementById('nc-target').value = '';
+  renderColorPicker('nc-color-row', COLORS, ()=>newCtrColor, v=>{newCtrColor=v;renderColorPicker('nc-color-row',COLORS,()=>newCtrColor,arguments.callee);});
+  openSheet('sheet-new-counter');
+  setTimeout(()=>document.getElementById('nc-name').focus(),120);
+}
+
+function createCounter() {
+  const p = getProj();
+  if (!p) return;
+  const name = document.getElementById('nc-name').value.trim() || 'Compteur';
+  const target = parseInt(document.getElementById('nc-target').value) > 0 ? parseInt(document.getElementById('nc-target').value) : 0;
+  p.counters.push({ id: Date.now(), name, color: newCtrColor, count: 0, target, notes: '' });
+  save();
+  closeSheet('sheet-new-counter');
+  renderProject();
+}
+
+/* ── PICKER HELPERS ── */
+function renderColorPicker(containerId, colors, getVal, setVal) {
+  document.getElementById(containerId).innerHTML = colors.map(c =>
+    `<div class="color-chip${c===getVal()?' sel':''}" style="background:${c}" onclick="(${setVal.toString()})('${c}')"></div>`
+  ).join('');
+}
+function renderEmojiPicker(containerId, emojis, getVal, setVal) {
+  document.getElementById(containerId).innerHTML = emojis.map(e =>
+    `<div class="emoji-chip${e===getVal()?' sel':''}" onclick="(${setVal.toString()})('${e}')">${e}</div>`
+  ).join('');
+}
+
+/* ── NAV ── */
+function goList() {
+  renderList();
+  show('screen-list');
+}
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function openSheet(id) { document.getElementById(id).classList.add('open'); }
+function closeSheet(id) { document.getElementById(id).classList.remove('open'); }
+
+/* ── UTIL ── */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ── INSTALL TIP ── */
+function checkInstall() {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standalone = window.navigator.standalone;
+  if (isIOS && !standalone) document.getElementById('install-tip').style.display = 'block';
+}
+
+/* ── SERVICE WORKER ── */
+if ('serviceWorker' in navigator) {
+  const sw = `const V='minou-v2';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.add(self.location.pathname)));self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))));});
+self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`;
+  const blob = new Blob([sw],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+
+/* ── INIT ── */
+load();
+renderList();
+checkInstall();
+
+/* ── Color/emoji picker for sheets (re-render on open) ── */
+document.getElementById('sheet-new-project').addEventListener('transitionend', ()=>{});
+</script>
+</body>
+</html>
